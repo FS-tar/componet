@@ -1,43 +1,45 @@
 # CompoNet 复现开放问题
 
-说明：当前本地仓库没有 `paper/self_composing_policies.pdf`。以下问题基于官方论文页面、本地 README 和代码初步阅读整理，后续补齐 PDF 后需要再次核对。
+说明：本文件已基于 `paper/self_composing_policies.pdf` 二次复核。这里仅保留论文没有完全解决、需要代码阅读、实验验证或导师决策的问题；PDF 已明确回答的内容不再列为开放问题。
 
-## 1. 论文中没有说清楚但复现需要知道的问题
+## 1. PDF 已回答的问题
 
-- Freeway 任务数不一致：论文规划里提到 Freeway modes 0-6，但本地 `experiments/atari/task_utils.py` 中 `ALE/Freeway-v5` 是 `[0, 1, 2, 3, 4, 5, 6, 7]`，共 8 个 mode。需要确认论文最终实验到底用了 7 个还是 8 个。
-- HTML 版本中的部分附录表格/超参显示可能不完整，需要用 PDF 原文核对 PPO、SAC、CompoNet、PackNet、ProgressiveNet 的完整超参。
-- 论文如何严格定义 Atari success score，需要与 `experiments/atari/process_results.py` 中由 episodic return 阈值转换 success 的实现逐项核对。
-- Reference Transfer 的计算是否完全对应代码里的 `transfer_matrix.py` / `transferer_matrix.py`，尤其是 smoothing window、插值和面积归一化。
-- 论文实验中的每个 seed 列表、训练硬件、运行时长是否有更精确记录。
-- DINO encoder 相关实验是否属于主复现目标，还是只作为架构/表示 ablation。
+- Meta-World 任务序列：10 个任务重复两轮，共 20 个任务；任务名称和顺序在 Appendix D.1 给出。
+- 论文级训练预算：每任务 `1M` timesteps。
+- 随机种子数量：Table 1 结果为 10 random seeds 的均值和标准差。
+- Atari success score 定义：Appendix D.4 定义为所有 8 个方法、10 seeds 最终 episodic return 平均值的 90%，并给出固定表 D.1。
+- DINO 定位：Appendix A 是视觉 foundation model 表示的初步可行性分析，不是三组主实验的核心设置；主 Atari 实验使用 CNN encoder。
 
-## 2. 需要从代码里确认的问题
+## 2. 仍需代码或数据确认的问题
 
-- Atari 批量脚本对 CompoNet 自动添加 `--componet-finetune-encoder`，需要确认论文主实验是否全部使用该设置。
-- Atari `run_experiments.py` 接收 `--first-mode` 和 `--last-mode`，但当前脚本主体主要用 `--start-mode` 和 `TASKS[env]` 序列，似乎没有实际使用 `first-mode/last-mode` 控制范围，需要进一步确认是否是遗留参数。
-- `run_ppo.py` 默认 `env_id` 是 `BreakoutNoFrameskip-v4`，README 又说默认 CLI 参数是论文设置。实际复现 SpaceInvaders/Freeway 时必须显式传 `--env-id`，这应记录为 README 与脚本默认值的差异。
-- CompoNet 是否只作用于 actor：Meta-World `run_sac.py` 中 actor 使用 CRL 模型，Q 网络看起来每次从头初始化；Atari agent 里 actor/critic 具体共享关系还需读 `experiments/atari/models/*` 进一步确认。
-- `prev_units` 路径命名必须与 `run_name` 一致。Atari run name 是 `{env_id}_{mode}__{model_type}__run_ppo__{seed}`，Meta-World 是 `task_{task_id}__{model_type}__run_sac__{seed}`，需要在实验日志中记录每次保存路径。
-- PackNet 在 Atari 需要 `--total-task-num`，Meta-World 代码中固定传 `total_task_num=20`，需要确认论文中是否一致。
-- `process_results.py` 的输入有两类：官方 CSV 数据和本地 TensorBoard runs。每个图表到底从哪个脚本和哪种数据生成，需要建立代码地图。
+- Freeway 任务数不一致：论文正文称 7 playing modes，Appendix D.3 描述到 mode 6；但 Appendix D.4 表 D.1b 和本地 `experiments/atari/task_utils.py` 使用 TASK/mode 0-7。复现时暂跟随附录表格和代码，但正式报告需解释该差异。
+- Atari success score 处理差异：论文 D.4 写 90%，但本地 `experiments/atari/process_results.py` 的 `SETTINGS` 使用 `sc_percent=1.0`。需要确认官方 CSV 是否已预处理，或代码是否与论文文字存在偏差。
+- Reference Transfer 复现细节：`transfer_matrix.py` / `transferer_matrix.py` 中 smoothing、插值和归一化实现需要与论文 Section 5.1 和 Appendix D.5 对齐。
+- Atari `run_experiments.py` 参数：脚本要求 `--first-mode` 和 `--last-mode`，但当前代码未用它们控制范围；需要确认是否遗留参数。
+- `prev_units` 路径规则：需要通过小规模实验确认 Atari 和 Meta-World 的保存目录与加载路径完全匹配。
+- 本地 Python 环境：当前 shell 中直接运行 `python` 不可用，复现实验前需要确认虚拟环境或 Python 可执行路径。
+- 官方数据路径：`data.tar.xz` 解压后的目录结构、CSV 列名和 `process_results.py` 默认参数是否完全匹配，需要实际解压后确认。
 
 ## 3. 需要问导师的问题
 
-- 第一阶段复现优先选择 Atari 还是 Meta-World？Atari 环境安装可能更轻，但 Meta-World 的 success 指标更直接。
+- 第一阶段复现优先选择 Atari 还是 Meta-World？Atari 安装可能更轻，Meta-World 的 success 指标更直接。
 - smoke test 是否只要求验证训练管线、保存/加载和日志记录，不要求性能提升？
-- 是否允许先使用仓库自带 `data.tar.xz` 复现论文图表流程，再逐步进行本地训练复现？
-- 如果算力不足，是否可以接受 Level 3 的小规模正式实验作为课程/组会阶段性结果？
-- 学术讨论中更关注 CompoNet 的方法机制、指标定义，还是更关注能否完整复现实验曲线？
-- 是否需要把 ProgressiveNet、PackNet 的理论对比单独整理成给导师看的讲解文档？
+- 是否允许先使用仓库自带官方数据复现论文图表流程，再逐步做本地训练复现？
+- 如果算力不足，是否可以接受两个任务的小规模 CompoNet 链路验证作为阶段性结果？
+- 汇报时更关注 CompoNet 的机制、指标定义和代码理解，还是完整实验曲线复现？
 
-## 4. 随机性、算力和依赖版本风险
+## 4. 风险记录
 
-- 强化学习结果高方差。论文使用多 seed 统计，单 seed 的 smoke test 或小规模实验只能验证流程，不能证明论文结论。
-- 完整实验成本高。默认训练是 `1e6` timesteps/task，Meta-World 20 个 task，SpaceInvaders 10 个 mode，Freeway 任务数还需核对；多方法多 seed 会迅速放大总耗时。
-- 论文计划中估计完整设置每任务约 1.5-3 小时且需要 GPU；CPU 只适合 Level 1/2 的管线检查。
-- Atari 依赖风险包括 `gymnasium`、`ale-py`、ROM 授权/安装、`stable-baselines3` wrapper 版本差异。
-- Meta-World 依赖风险包括 `metaworld`、MuJoCo、Gymnasium API、Python 版本兼容性。
-- CUDA、cuDNN deterministic 设置、不同 GPU 型号和 PyTorch 版本都会影响速度和少量数值差异。
-- TensorBoard scalar 名称和日志目录结构会影响 `process_results.py` 能否正确聚合。
-- 大型输出目录如 `runs/`、`agents/`、`videos/`、解压后的大型数据不应提交到 git，只在 `docs/experiment_log.md` 记录路径和摘要。
+- 强化学习结果高方差，单 seed smoke test 只能验证流程，不能证明论文结论。
+- 完整实验成本高：每任务 `1M` timesteps，三组序列、多方法、10 seeds 会迅速放大计算量。
+- Atari 依赖风险包括 Gymnasium/ALE、ROM、wrapper 版本和 Windows 环境兼容。
+- Meta-World 依赖风险包括 MuJoCo、Metaworld 版本、Gymnasium API 和 Python 版本兼容。
+- 大型输出目录如 `runs/`、`agents/`、`videos/`、解压后的数据不应提交到 git。
 
+## Verification Notes
+
+- 本文档已基于 `paper/self_composing_policies.pdf` 复核。
+- 来自论文的内容：Meta-World 任务序列、训练预算、10 seeds、Atari success score、DINO 的附录定位、实验指标和主实验方法。
+- 来自代码检查的内容：Freeway 代码使用 0-7；Atari `process_results.py` 使用 `sc_percent=1.0`；Atari 批量脚本无 `--no-run` 且未使用 `first-mode/last-mode` 控制范围；Meta-World 批量脚本有 `--no-run`。
+- 仍需从代码或实验确认：官方 CSV 与处理脚本的匹配关系、保存/加载路径、依赖环境、smoke test 是否能跑通。
+- 目前仍不确定：Freeway 7 vs 8 的正式复现口径；Atari success score 的论文文字与本地处理脚本差异是否影响复现结果。
