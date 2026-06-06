@@ -3,3 +3,11 @@
 *runs*
 experiments/atari/data
 experiments/meta-world/data
+componet-worktrees/
+__pycache__/
+*.pyc
+logs/
+results/
+checkpoints/
+wandb/
+runs/
