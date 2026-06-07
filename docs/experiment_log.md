@@ -230,3 +230,252 @@ Result:
 ```
 
 Note: `git diff --stat` only reports tracked-file changes, so the newly created untracked files are visible through `git status --short --untracked-files=all` instead.
+
+## 2026-06-07 Smoke Test Preparation
+
+Goal: prepare the first official-code smoke test without switching branches, running full training, installing dependencies, or generating large result files.
+
+### Repository Safety Checks
+
+Command:
+
+```powershell
+git branch --show-current
+```
+
+Result:
+
+```text
+exp/smoke-test
+```
+
+Command:
+
+```powershell
+git status --short --branch
+```
+
+Result:
+
+```text
+## exp/smoke-test...origin/exp/smoke-test
+```
+
+Command:
+
+```powershell
+Get-Location
+```
+
+Result:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+### Files Read
+
+- `AGENTS.md`
+- `README.md`
+- `docs/environment_setup.md`
+- `docs/experiment_log.md`
+- `docs/reproduction_plan_code.md`
+- `docs/codebase_map.md`
+- `experiments/atari/requirements.txt`
+- `experiments/meta-world/requirements.txt`
+- `scripts/check_env.py`
+- `experiments/atari/run_ppo.py`
+- `experiments/meta-world/run_sac.py`
+
+### Environment Commands
+
+Command:
+
+```powershell
+python scripts/check_env.py
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell. The script could not start.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+py --version
+```
+
+Result:
+
+```text
+No installed Python found!
+```
+
+Command:
+
+```powershell
+where.exe python
+```
+
+Result:
+
+```text
+INFO: Could not find files for the given pattern(s).
+```
+
+Command:
+
+```powershell
+where.exe py
+```
+
+Result:
+
+```text
+C:\Windows\py.exe
+```
+
+Command:
+
+```powershell
+conda --version
+```
+
+Result:
+
+```text
+Failed: conda command not found in the current shell.
+```
+
+Command:
+
+```powershell
+pip --version
+```
+
+Result:
+
+```text
+Failed: pip command not found in the current shell.
+```
+
+Command:
+
+```powershell
+python -m pip --version
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell.
+```
+
+Command:
+
+```powershell
+nvidia-smi
+```
+
+Result:
+
+```text
+NVIDIA-SMI 531.88
+Driver Version: 531.88
+CUDA Version: 12.1
+GPU 0: NVIDIA GeForce RTX 3050 Laptop GPU
+Memory: 4096 MiB total, 8 MiB used during check
+GPU utilization: 0%
+```
+
+Command:
+
+```powershell
+[System.Environment]::OSVersion.VersionString
+```
+
+Result:
+
+```text
+Microsoft Windows NT 10.0.26200.0
+```
+
+### Entrypoint Help Check
+
+Command:
+
+```powershell
+python experiments/atari/run_ppo.py cnn-simple --help
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell. The script could not start, so no Python package imports or CLI parsing were reached.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+### Dependency Assessment
+
+The first missing dependency is Python itself. Because no usable Python executable is available, PyTorch, pip, Gymnasium, ALE, tyro, and other Python packages cannot be checked yet.
+
+Atari should be the first smoke-test target after Python is available. The relevant dependency file is `experiments/atari/requirements.txt`, with the main required packages including:
+
+- `torch==2.1.0`
+- `torchvision`
+- `gym==0.23.1`
+- `gymnasium[atari]==0.28.1`
+- `ale-py==0.8.1`
+- `autorom[accept-rom-license]==0.4.2`
+- `autorom-accept-rom-license==0.6.1`
+- `stable-baselines3==2.0.0`
+- `tyro==0.5.10`
+- `tensorboard==2.11.2`
+- `opencv-python==4.7.0.72`
+
+Meta-World should wait because its requirements include MuJoCo, OpenGL/GLFW, GitHub-installed `metaworld`, and Linux-style CUDA wheel packages that are higher-risk on native Windows.
+
+### Smoke Test Decision
+
+Preferred first smoke-test entrypoint:
+
+```powershell
+python experiments/atari/run_ppo.py cnn-simple --help
+```
+
+Reason: `experiments/atari/run_ppo.py` is the official single-run PPO entrypoint, and `cnn-simple` avoids CompoNet previous-unit requirements for the first baseline check.
+
+No training was run in this step.
+
+### Next Minimal Operation
+
+Install or expose Python 3.10 first, then install only the Atari dependencies:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r experiments/atari/requirements.txt
+```
+
+If Atari ROM setup is still missing after dependency installation:
+
+```powershell
+AutoROM --accept-license
+```
+
+Then rerun:
+
+```powershell
+python scripts/check_env.py
+python experiments/atari/run_ppo.py cnn-simple --help
+```
+
+Only after `--help` succeeds should a tiny `cnn-simple` Atari smoke test be designed. Do not run any full training or any run expected to exceed 5 minutes.
+
+### Suggested Commit Message
+
+```text
+docs: record first smoke test environment check
+```
