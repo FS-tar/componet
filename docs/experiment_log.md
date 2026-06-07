@@ -479,3 +479,156 @@ Only after `--help` succeeds should a tiny `cnn-simple` Atari smoke test be desi
 ```text
 docs: record first smoke test environment check
 ```
+
+## 2026-06-07 Atari Help Smoke-Test Step
+
+Goal: start the first smoke-test step by checking the official Atari training entrypoint help output only. No dependency installation, formal training, branch switching, or large output generation was performed.
+
+### Repository Safety Checks
+
+Command:
+
+```powershell
+git branch --show-current
+```
+
+Result:
+
+```text
+exp/smoke-test
+```
+
+Command:
+
+```powershell
+git status
+```
+
+Result:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+nothing to commit, working tree clean
+```
+
+Command:
+
+```powershell
+Get-Location
+```
+
+Result:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+### Environment Checks
+
+Command:
+
+```powershell
+python --version
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+pip --version
+```
+
+Result:
+
+```text
+Failed: pip command not found in the current shell.
+PowerShell reported: pip is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+python scripts/check_env.py
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell. The environment check script could not start.
+```
+
+### Files Read
+
+- `docs/smoke_test_plan.md`
+- `docs/environment_setup.md`
+- `docs/reproduction_plan_code.md`
+- `docs/codebase_map.md`
+- `README.md`
+- `experiments/atari/requirements.txt`
+
+### Atari Entrypoint
+
+The first Atari training entrypoint is:
+
+```text
+experiments/atari/run_ppo.py
+```
+
+This is the official single-run PPO entrypoint described by `README.md`, `docs/codebase_map.md`, and `docs/smoke_test_plan.md`. The first model choice remains `cnn-simple` because it does not require previous CompoNet units or saved historical models.
+
+### Help Command
+
+Command:
+
+```powershell
+python experiments/atari/run_ppo.py cnn-simple --help
+```
+
+Result:
+
+```text
+Failed before Python started the script.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+The `--help` check did not reach the Python interpreter, package imports, or tyro CLI parsing. Therefore the current blocker is Python itself, not yet `torch`, `tyro`, `gymnasium`, `ale-py`, or another Atari package.
+
+### Minimum Install Command
+
+First install or expose Python 3.10 in PATH. Then install only the Atari dependency set:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r experiments/atari/requirements.txt
+```
+
+If Atari ROM setup later fails after dependencies are installed:
+
+```powershell
+AutoROM --accept-license
+```
+
+### Next Step
+
+After Python and Atari requirements are available, rerun:
+
+```powershell
+python scripts/check_env.py
+python experiments/atari/run_ppo.py cnn-simple --help
+```
+
+Do not run training until the help command succeeds.
+
+### Suggested Commit Message
+
+```text
+docs: record atari help smoke test blocker
+```

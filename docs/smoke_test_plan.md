@@ -18,6 +18,8 @@ Confirmed working:
 
 Confirmed failing:
 
+- `python --version` fails because `python` is not found.
+- `pip --version` fails because `pip` is not found.
 - `python scripts/check_env.py` fails before the script can start because `python` is not found.
 - `python experiments/atari/run_ppo.py cnn-simple --help` fails for the same reason.
 - `py --version` reports `No installed Python found!`.
@@ -41,6 +43,8 @@ Best first entrypoint:
 ```powershell
 python experiments/atari/run_ppo.py cnn-simple --help
 ```
+
+Latest result: the help command was attempted and failed before Python started the script because `python` is not available in the shell. The missing dependency at this stage is Python itself, not yet `torch`, `tyro`, `gymnasium`, or `ale-py`.
 
 Do not run full training yet.
 
@@ -93,5 +97,5 @@ The first run must stay under 5 minutes and must not generate large checkpoints,
 Suggested commit message:
 
 ```text
-docs: record first smoke test environment check
+docs: record atari help smoke test blocker
 ```
