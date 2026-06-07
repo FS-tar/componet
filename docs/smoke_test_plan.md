@@ -6,7 +6,7 @@ Branch: `exp/smoke-test`
 
 ## Current Status
 
-The first official-code smoke test is ready for the shortest smoke-run design stage, with one environment risk to address first: NumPy 2.2.6 causes `_ARRAY_API not found` compatibility messages from compiled packages such as `opencv-python==4.7.0.72` and PyTorch 2.1.0 imports.
+The first official-code smoke test is ready for the shortest smoke-run design stage. The NumPy compatibility risk has been checked: the project `.venv` currently uses NumPy `1.26.4`, and the previous `_ARRAY_API not found` warning/error stream no longer appears in `scripts/check_env.py` or `run_ppo.py cnn-simple --help`.
 
 Confirmed working:
 
@@ -54,6 +54,10 @@ Confirmed failing:
 - `scripts/check_env.py` succeeded with exit code 0.
 - `experiments/atari/run_ppo.py cnn-simple --help` succeeded with exit code 0 and printed tyro CLI help.
 - NumPy compatibility warnings/errors appeared during `check_env.py` and `--help`: NumPy 2.2.6 is incompatible with some modules compiled against NumPy 1.x, with `_ARRAY_API not found`.
+- NumPy compatibility recheck confirmed NumPy `1.26.4` before and after `pip install "numpy<2"`.
+- `pip install "numpy<2"` succeeded and reported the requirement was already satisfied.
+- After the NumPy recheck, `scripts/check_env.py` succeeded with no `_ARRAY_API not found` warning/error.
+- After the NumPy recheck, `run_ppo.py cnn-simple --help` succeeded with no `_ARRAY_API not found` warning/error.
 
 ## First Smoke Test Choice
 
@@ -74,13 +78,11 @@ python experiments/atari/run_ppo.py cnn-simple --help
 
 Latest result: the help command was attempted and failed before Python started the script because `python` is not available in the shell. The missing dependency at this stage is Python itself, not yet `torch`, `tyro`, `gymnasium`, or `ale-py`.
 
-Latest result: Full Access allowed Codex to use the project `.venv` directly. Atari requirements are installed in the project `.venv`, `scripts/check_env.py` exits successfully, and `run_ppo.py cnn-simple --help` exits successfully while printing the expected tyro CLI options. The remaining risk before a true smoke run is the NumPy 2.2.6 compatibility warning/error stream (`_ARRAY_API not found`) from compiled dependencies.
+Latest result: Full Access allowed Codex to use the project `.venv` directly. Atari requirements are installed in the project `.venv`; NumPy is `1.26.4`; `scripts/check_env.py` exits successfully; and `run_ppo.py cnn-simple --help` exits successfully while printing the expected tyro CLI options. The previous NumPy `_ARRAY_API not found` warning/error stream is gone.
 
 Do not run full training yet.
 
 ## Minimal Setup Command
-
-Before running a true smoke command, decide whether to fix the NumPy compatibility issue. The likely minimal environment-only fix to consider is using NumPy 1.x, for example `numpy<2`, because the current packages emit `_ARRAY_API not found` under NumPy 2.2.6. Do not install this unless explicitly requested.
 
 Candidate shortest smoke-run command to review next, but not execute yet:
 

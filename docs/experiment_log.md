@@ -1980,3 +1980,140 @@ Do not run the real smoke command until explicitly requested.
 ```text
 docs: record atari requirements and help check
 ```
+
+## 2026-06-07 NumPy Compatibility Check
+
+Goal: handle the NumPy 2.x compatibility risk observed during the Atari help check, then re-run the environment check and only `run_ppo.py cnn-simple --help`. No branch switch, training command, source-code edit, commit, push, or deletion was performed.
+
+### Safety Check
+
+Current branch:
+
+```text
+exp/smoke-test
+```
+
+Current directory:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+Initial `git status`:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+nothing to commit, working tree clean
+```
+
+Python path used:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+```
+
+### NumPy Version Before
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -c "import numpy; print(numpy.__version__)"
+```
+
+Result:
+
+```text
+1.26.4
+```
+
+### NumPy 1.x Install Check
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip install "numpy<2"
+```
+
+Result:
+
+```text
+Success. Requirement already satisfied: numpy<2 in the project .venv (1.26.4).
+```
+
+No package other than `numpy<2` was installed in this step.
+
+### NumPy Version After
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -c "import numpy; print(numpy.__version__)"
+```
+
+Result:
+
+```text
+1.26.4
+```
+
+### Environment Check
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" scripts/check_env.py
+```
+
+Result:
+
+```text
+Success. The command exited with code 0.
+```
+
+Important output:
+
+```text
+Python version: 3.10.11
+pip: 26.1.2 from the project .venv
+nvidia-smi: available
+PyTorch installed: True
+PyTorch version: 2.1.0+cpu
+torch cuda available: False
+cuda device count: 0
+```
+
+`scripts/check_env.py` succeeded: yes.
+
+### Atari Help Check
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --help
+```
+
+Result:
+
+```text
+Success. The command exited with code 0 and printed the tyro CLI help for run_ppo.py.
+```
+
+`run_ppo.py cnn-simple --help` succeeded: yes.
+
+### NumPy Warning Status
+
+The previous NumPy `_ARRAY_API not found` warning/error stream did not appear after confirming `numpy<2` with NumPy `1.26.4`.
+
+NumPy `_ARRAY_API` warning disappeared: yes.
+
+### Next Minimal Operation
+
+It is now reasonable to design the true shortest Atari smoke test. Do not run it until explicitly requested. A candidate should keep the run under 5 minutes and avoid large artifacts, tracking, video capture, and model saving.
+
+### Suggested Commit Message
+
+```text
+docs: record numpy compatibility check
+```
