@@ -136,3 +136,65 @@ Suggested commit message:
 ```text
 docs: record atari requirements and help check
 ```
+
+## Proposed Minimal Atari Smoke Test
+
+Recommended command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
+```
+
+Parameter roles:
+
+- `cnn-simple`: uses the simplest Atari CNN PPO baseline, with no previous CompoNet units or saved model dependencies.
+- `--env-id ALE/Freeway-v5`: uses one of the official Atari sequence environments referenced in the repository notes.
+- `--mode 0`: selects a single Atari mode/task.
+- `--total-timesteps 8`: keeps the run far below the paper-scale default of `1,000,000` timesteps.
+- `--num-envs 1`: creates only one parallel environment.
+- `--num-steps 8`: collects one tiny rollout of 8 steps.
+- `--num-minibatches 1`: keeps the PPO update compatible with the tiny batch size.
+- `--update-epochs 1`: performs only one optimization pass.
+- `--no-track`: avoids Weights and Biases.
+- `--no-capture-video`: avoids video output.
+- `--no-cuda`: makes the CPU-only PyTorch environment explicit.
+- `--exp-name smoke_min`: labels the TensorBoard run as a smoke test.
+
+Why this is short:
+
+`run_ppo.py` computes `batch_size = num_envs * num_steps` and `num_iterations = total_timesteps // batch_size`. With `1 * 8 = 8` and `total_timesteps = 8`, the command should run exactly one PPO iteration. That is enough to create the environment, initialize the model, reset and step the environment, collect a rollout, compute advantages/losses, run one optimizer update, write minimal TensorBoard scalars, and close the environment.
+
+Expected outputs:
+
+- Console output including the run name, model type, and `SPS`.
+- A small TensorBoard event file under `runs/ALE-Freeway-v5_0__cnn-simple__smoke_min__1`.
+- No model checkpoint, because `--save-dir` is not provided.
+- No video output, because `--no-capture-video` is set.
+- No wandb output, because `--no-track` is set.
+
+Success criteria:
+
+- The command exits with code 0.
+- It prints the run name and `*** Model: cnn-simple ***`.
+- It prints at least one `SPS:` line.
+- No Python exception is raised.
+- No large checkpoint, video, dataset, or wandb artifact is generated.
+
+Failure criteria:
+
+- Environment creation fails, especially missing Atari ROM/ALE errors.
+- The first reset or step fails in the Atari wrappers.
+- The model forward pass or PPO update raises a shape, dtype, or dependency error.
+- The command exceeds 5 minutes.
+- Unexpected large artifacts are created.
+
+Maximum allowed runtime:
+
+5 minutes. Stop or treat as failed if it exceeds that limit.
+
+If it fails, next debugging step:
+
+- If the error mentions missing ROMs, run Atari ROM setup separately only after approval, then repeat `--help` before retrying the smoke run.
+- If the error mentions environment id or mode, try the same minimal settings with the script default environment or another documented Atari environment after checking the available Gymnasium/ALE ids.
+- If the error is a tensor shape or PPO minibatch issue, inspect the failure and adjust only smoke-test CLI dimensions first, not algorithm code.
+- If the only output is a TensorBoard directory, confirm it is small and leave cleanup or `.gitignore` decisions for a separate explicit request.

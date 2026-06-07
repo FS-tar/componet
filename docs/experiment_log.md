@@ -2117,3 +2117,77 @@ It is now reasonable to design the true shortest Atari smoke test. Do not run it
 ```text
 docs: record numpy compatibility check
 ```
+
+## 2026-06-07 Proposed Atari Smoke Test Command
+
+Goal: design the shortest Atari smoke-test command without executing training. No branch switch, training command, source-code edit, deletion, commit, or push was performed.
+
+### Inputs Reviewed
+
+- `docs/smoke_test_plan.md`
+- `docs/experiment_log.md`
+- `docs/reproduction_plan_code.md`
+- `docs/codebase_map.md`
+- `README.md`
+- `experiments/atari/run_ppo.py`
+
+### Design Notes
+
+`run_ppo.py` exposes short-run controls through `--total-timesteps`, `--num-envs`, `--num-steps`, `--num-minibatches`, and `--update-epochs`.
+
+The script computes:
+
+```text
+batch_size = num_envs * num_steps
+num_iterations = total_timesteps // batch_size
+```
+
+Therefore, to exercise the training loop rather than only initialize and exit, the smallest practical design should set `total_timesteps` equal to the tiny batch size. With `--num-envs 1` and `--num-steps 8`, `--total-timesteps 8` gives exactly one PPO iteration.
+
+The script always creates a TensorBoard `SummaryWriter` under `runs/<run_name>`. There is no CLI option to disable this, so a true smoke run is expected to create a small TensorBoard event file. The command avoids larger outputs by omitting `--save-dir`, setting `--no-track`, and setting `--no-capture-video`.
+
+### Proposed Command
+
+Do not execute until explicitly requested:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
+```
+
+### Expected Result
+
+This command should create one `ALE/Freeway-v5` mode-0 environment, initialize `cnn-simple`, collect one 8-step rollout, perform one PPO update, write minimal TensorBoard scalars, and exit.
+
+Expected small output:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__smoke_min__1/
+```
+
+No model checkpoint should be saved because `--save-dir` is not provided. No video or wandb output should be produced.
+
+### Success Criteria
+
+- Exit code 0.
+- Prints `*** Model: cnn-simple ***`.
+- Prints an `SPS:` line.
+- No exception from ALE/Gymnasium wrappers, model initialization, rollout, or PPO update.
+
+### Failure Criteria
+
+- Missing ROM/ALE error.
+- Environment id or mode error.
+- Wrapper reset/step error.
+- Model shape or dtype error.
+- Runtime exceeds 5 minutes.
+- Unexpected large artifacts are produced.
+
+### Next Step
+
+If approved later, run the proposed command with a 5-minute timeout and then record the actual command, output, generated files, and result. Do not run it as part of this design-only step.
+
+### Suggested Commit Message
+
+```text
+docs: propose minimal atari smoke test command
+```
