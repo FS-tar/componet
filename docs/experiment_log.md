@@ -632,3 +632,1351 @@ Do not run training until the help command succeeds.
 ```text
 docs: record atari help smoke test blocker
 ```
+
+## 2026-06-07 Atari Dependency Install Attempt
+
+Goal: install only the dependencies needed for the Atari smoke test, without switching branches, running training, or running any non-help Atari training command.
+
+### Repository Safety Checks
+
+Command:
+
+```powershell
+git branch --show-current
+```
+
+Result:
+
+```text
+exp/smoke-test
+```
+
+Command:
+
+```powershell
+git status
+```
+
+Result:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+nothing to commit, working tree clean
+```
+
+Command:
+
+```powershell
+Get-Location
+```
+
+Result:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+### Python Availability Checks
+
+Command:
+
+```powershell
+python --version
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+pip --version
+```
+
+Result:
+
+```text
+Failed: pip command not found in the current shell.
+PowerShell reported: pip is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+py -0p
+```
+
+Result:
+
+```text
+No installed Pythons found!
+```
+
+Command:
+
+```powershell
+py -3.10 --version
+```
+
+Result:
+
+```text
+No installed Python found!
+```
+
+Command:
+
+```powershell
+py -3.10 -m pip --version
+```
+
+Result:
+
+```text
+No installed Python found!
+```
+
+### Install Result
+
+No dependency installation command was run because neither `python` nor `py -3.10` is available. This means the requested install commands could not be started:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r experiments/atari/requirements.txt
+```
+
+or:
+
+```powershell
+py -3.10 -m pip install --upgrade pip
+py -3.10 -m pip install -r experiments/atari/requirements.txt
+```
+
+No training was run.
+
+### Current Blocker
+
+The blocker is still the absence of an installed or exposed Python 3.10 interpreter. Atari package dependencies such as `torch`, `tyro`, `gymnasium`, `ale-py`, `stable-baselines3`, and `opencv-python` cannot be installed or checked until Python and pip are available.
+
+### Next Minimal Operation
+
+Install Python 3.10 or expose an existing Python 3.10 installation so that either `python --version` or `py -3.10 --version` works. Then run only the Atari dependency installation:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r experiments/atari/requirements.txt
+```
+
+If only the launcher works:
+
+```powershell
+py -3.10 -m pip install --upgrade pip
+py -3.10 -m pip install -r experiments/atari/requirements.txt
+```
+
+After installation, rerun:
+
+```powershell
+python scripts/check_env.py
+python experiments/atari/run_ppo.py cnn-simple --help
+```
+
+### Suggested Commit Message
+
+```text
+docs: record python blocker for atari dependency install
+```
+
+## 2026-06-07 Atari Python Dependency Recheck
+
+Goal: resolve the Python/dependency blocker for the Atari smoke test if possible, then run only `run_ppo.py cnn-simple --help`. No branch switch, training command, or large output generation was performed.
+
+### Repository Safety Checks
+
+Command:
+
+```powershell
+git branch --show-current
+```
+
+Result:
+
+```text
+exp/smoke-test
+```
+
+Command:
+
+```powershell
+git status
+```
+
+Result:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   docs/experiment_log.md
+        modified:   docs/smoke_test_plan.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Command:
+
+```powershell
+pwd
+```
+
+Result:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+### Python Command Detection
+
+Command:
+
+```powershell
+where python
+```
+
+Result:
+
+```text
+INFO: Could not find files for the given pattern(s).
+```
+
+Command:
+
+```powershell
+where py
+```
+
+Result:
+
+```text
+C:\Windows\py.exe
+```
+
+Command:
+
+```powershell
+where pip
+```
+
+Result:
+
+```text
+INFO: Could not find files for the given pattern(s).
+```
+
+Command:
+
+```powershell
+python --version
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+pip --version
+```
+
+Result:
+
+```text
+Failed: pip command not found in the current shell.
+PowerShell reported: pip is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+py -0p
+```
+
+Result:
+
+```text
+No installed Pythons found!
+```
+
+Command:
+
+```powershell
+py -3.10 --version
+```
+
+Result:
+
+```text
+No installed Python found!
+```
+
+Command:
+
+```powershell
+py -3.10 -m pip --version
+```
+
+Result:
+
+```text
+No installed Python found!
+```
+
+### Decision
+
+Final Python command: none.
+
+Reason: `python --version` failed, and `py -3.10 --version` also failed. Per the smoke-test rule, dependency installation stopped here.
+
+Python version: unavailable.
+
+pip version: unavailable.
+
+### Install and Validation Result
+
+Atari requirements installed: no. Installation was not attempted because no usable Python 3.10 command is available.
+
+`scripts/check_env.py`: not run in this step because no usable Python 3.10 command is available.
+
+`experiments/atari/run_ppo.py cnn-simple --help`: not run in this step because no usable Python 3.10 command is available.
+
+No training command was run.
+
+### Current Blocker
+
+The blocker remains the missing Python 3.10 interpreter in the current shell. The Windows Python launcher exists at `C:\Windows\py.exe`, but it reports no installed Python versions.
+
+### Next Minimal Operation
+
+Install Python 3.10 or expose an existing Python 3.10 installation so that one of these succeeds:
+
+```powershell
+python --version
+py -3.10 --version
+```
+
+Then rerun only:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r experiments/atari/requirements.txt
+python scripts/check_env.py
+python experiments/atari/run_ppo.py cnn-simple --help
+```
+
+If only `py -3.10` works, use the equivalent `py -3.10 -m pip ...` and `py -3.10 ...` commands.
+
+### Suggested Commit Message
+
+```text
+docs: record atari python recheck blocker
+```
+
+## 2026-06-07 Atari Virtualenv Dependency Attempt
+
+Goal: use the project virtual environment Python 3.10 to install Atari smoke-test dependencies, then run only `run_ppo.py cnn-simple --help`. No branch switch, training command, or large output generation was performed.
+
+### Repository Safety Checks
+
+Command:
+
+```powershell
+git branch --show-current
+```
+
+Result:
+
+```text
+exp/smoke-test
+```
+
+Command:
+
+```powershell
+git status
+```
+
+Result:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   docs/experiment_log.md
+        modified:   docs/smoke_test_plan.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Command:
+
+```powershell
+pwd
+```
+
+Result:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+### Virtual Environment Detection
+
+Command:
+
+```powershell
+dir
+```
+
+Result:
+
+```text
+The worktree contains componet, docs, experiments, paper, scripts, utils, .gitignore, AGENTS.md, componet.png, LICENSE, and README.md. No venv or .venv directory was listed.
+```
+
+Command:
+
+```powershell
+dir venv
+```
+
+Result:
+
+```text
+Failed: path does not exist.
+```
+
+Command:
+
+```powershell
+dir .venv
+```
+
+Result:
+
+```text
+Failed: path does not exist.
+```
+
+Command:
+
+```powershell
+Test-Path .\venv\Scripts\python.exe
+```
+
+Result:
+
+```text
+False
+```
+
+Command:
+
+```powershell
+Test-Path .\.venv\Scripts\python.exe
+```
+
+Result:
+
+```text
+False
+```
+
+### Decision
+
+Virtual environment path used: none.
+
+Reason: neither `venv\Scripts\python.exe` nor `.venv\Scripts\python.exe` exists in the worktree. Per the task instruction, system `python` and `pip` were not used.
+
+Python version: unavailable.
+
+pip version: unavailable.
+
+### Install and Validation Result
+
+Atari requirements installed: no. Installation was not attempted because no project virtual environment Python 3.10 executable exists at the allowed paths.
+
+`scripts/check_env.py`: not run because there is no allowed virtual environment Python executable.
+
+`experiments/atari/run_ppo.py cnn-simple --help`: not run because there is no allowed virtual environment Python executable.
+
+No training command was run.
+
+### Current Blocker
+
+The new blocker is that the expected project virtual environment is absent from this worktree. Both `venv` and `.venv` are missing, so there is no approved Python 3.10 command to use for dependency installation or `--help`.
+
+### Next Minimal Operation
+
+Create or copy a Python 3.10 virtual environment into one of the expected paths:
+
+```powershell
+.\venv\Scripts\python.exe
+```
+
+or:
+
+```powershell
+.\.venv\Scripts\python.exe
+```
+
+Then rerun only the virtual-environment commands:
+
+```powershell
+.\venv\Scripts\python.exe --version
+.\venv\Scripts\python.exe -m pip --version
+.\venv\Scripts\python.exe -m pip install --upgrade pip
+.\venv\Scripts\python.exe -m pip install -r experiments/atari/requirements.txt
+.\venv\Scripts\python.exe scripts/check_env.py
+.\venv\Scripts\python.exe experiments/atari/run_ppo.py cnn-simple --help
+```
+
+Use the `.venv` equivalents if `.venv\Scripts\python.exe` is the available path.
+
+### Suggested Commit Message
+
+```text
+docs: record missing virtualenv for atari smoke test
+```
+
+## 2026-06-07 Main Project Virtualenv Check
+
+Goal: use the Python 3.10 virtual environment located in the main project directory at `..\..\.venv\Scripts\python.exe` to install Atari smoke-test dependencies, then run only `run_ppo.py cnn-simple --help`. No branch switch, training command, or large output generation was performed.
+
+### Repository Safety Checks
+
+Command:
+
+```powershell
+git branch --show-current
+```
+
+Result:
+
+```text
+exp/smoke-test
+```
+
+Command:
+
+```powershell
+git status
+```
+
+Result:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   docs/experiment_log.md
+        modified:   docs/smoke_test_plan.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Command:
+
+```powershell
+pwd
+```
+
+Result:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+Command:
+
+```powershell
+echo $env:VIRTUAL_ENV
+```
+
+Result:
+
+```text
+No active VIRTUAL_ENV value was printed.
+```
+
+### Python Checks
+
+Command:
+
+```powershell
+Get-Command python
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell.
+```
+
+Command:
+
+```powershell
+python --version
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+python -m pip --version
+```
+
+Result:
+
+```text
+Failed: python command not found in the current shell.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+..\..\.venv\Scripts\python.exe --version
+```
+
+Result:
+
+```text
+Failed: Unable to create process using '"C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe" --version'
+```
+
+Command:
+
+```powershell
+..\..\.venv\Scripts\python.exe -m pip --version
+```
+
+Result:
+
+```text
+Failed: Unable to create process using '"C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe" -m pip --version'
+```
+
+Command:
+
+```powershell
+Test-Path ..\..\.venv\Scripts\python.exe
+```
+
+Result:
+
+```text
+True
+```
+
+### Decision
+
+Python path selected: `..\..\.venv\Scripts\python.exe`.
+
+Python version: unavailable because the virtual environment executable cannot start.
+
+pip version: unavailable because the virtual environment executable cannot start.
+
+The file `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe` exists, but it points to or depends on `C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe`, which is not available in the current environment.
+
+### Install and Validation Result
+
+Atari requirements installed: no. Installation was not attempted because the selected virtual environment Python executable cannot start.
+
+`scripts/check_env.py`: not run because the selected virtual environment Python executable cannot start.
+
+`experiments/atari/run_ppo.py cnn-simple --help`: not run because the selected virtual environment Python executable cannot start.
+
+No training command was run.
+
+### Current Blocker
+
+The blocker is a broken main-project virtual environment. The `.venv` directory exists, but its Python launcher cannot create a process because the base Python 3.10 interpreter path is missing:
+
+```text
+C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe
+```
+
+### Next Minimal Operation
+
+Repair the main-project `.venv` or recreate it with an available Python 3.10 interpreter, then verify:
+
+```powershell
+..\..\.venv\Scripts\python.exe --version
+..\..\.venv\Scripts\python.exe -m pip --version
+```
+
+Only after those succeed, rerun:
+
+```powershell
+..\..\.venv\Scripts\python.exe -m pip install --upgrade pip
+..\..\.venv\Scripts\python.exe -m pip install -r experiments/atari/requirements.txt
+..\..\.venv\Scripts\python.exe scripts/check_env.py
+..\..\.venv\Scripts\python.exe experiments/atari/run_ppo.py cnn-simple --help
+```
+
+### Suggested Commit Message
+
+```text
+docs: record broken main virtualenv blocker
+```
+
+## 2026-06-07 Activated Virtualenv Python Check
+
+Goal: use the currently activated main-project virtual environment through plain `python` and `python -m pip` to install Atari smoke-test dependencies, then run only `run_ppo.py cnn-simple --help`. No branch switch, training command, or large output generation was performed.
+
+### Repository Safety Checks
+
+Command:
+
+```powershell
+git branch --show-current
+```
+
+Result:
+
+```text
+exp/smoke-test
+```
+
+Command:
+
+```powershell
+git status
+```
+
+Result:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   docs/experiment_log.md
+        modified:   docs/smoke_test_plan.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Command:
+
+```powershell
+pwd
+```
+
+Result:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+### Activated Environment Checks
+
+Command:
+
+```powershell
+echo $env:VIRTUAL_ENV
+```
+
+Result:
+
+```text
+No active VIRTUAL_ENV value was printed in the command execution environment.
+```
+
+Command:
+
+```powershell
+Get-Command python
+```
+
+Result:
+
+```text
+Failed: python command not found in the current command execution environment.
+```
+
+Command:
+
+```powershell
+python --version
+```
+
+Result:
+
+```text
+Failed: python command not found in the current command execution environment.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+Command:
+
+```powershell
+python -m pip --version
+```
+
+Result:
+
+```text
+Failed: python command not found in the current command execution environment.
+PowerShell reported: python is not recognized as a cmdlet, function, script file, or runnable program.
+```
+
+### Decision
+
+Python path selected: none.
+
+Reason: the current command execution environment did not expose the activated virtual environment. `$env:VIRTUAL_ENV` was empty, `Get-Command python` failed, and `python --version` failed. Per the instruction to use plain `python` from the activated environment and not use explicit `.venv` paths, dependency installation stopped here.
+
+Python version: unavailable.
+
+pip version: unavailable.
+
+### Install and Validation Result
+
+Atari requirements installed: no. Installation was not attempted because `python` is unavailable in the command execution environment.
+
+`scripts/check_env.py`: not run because `python` is unavailable.
+
+`experiments/atari/run_ppo.py cnn-simple --help`: not run because `python` is unavailable.
+
+No training command was run.
+
+### Current Blocker
+
+The blocker is that Codex's command execution environment is not seeing the activated virtual environment. Although the user shell may have activated `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv`, the commands run for this step reported an empty `$env:VIRTUAL_ENV` and no `python` command.
+
+### Next Minimal Operation
+
+Run the next attempt in a command environment where the activated virtual environment is visible to Codex, then verify these first:
+
+```powershell
+echo $env:VIRTUAL_ENV
+Get-Command python
+python --version
+python -m pip --version
+```
+
+Only after `python` resolves to the Python 3.10 virtual environment, rerun:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r experiments/atari/requirements.txt
+python scripts/check_env.py
+python experiments/atari/run_ppo.py cnn-simple --help
+```
+
+### Suggested Commit Message
+
+```text
+docs: record inactive virtualenv in codex shell
+```
+
+## 2026-06-07 Absolute Virtualenv Python Attempt
+
+Goal: use the absolute Python path `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe` with PowerShell's call operator `&` to install Atari smoke-test dependencies, then run only `run_ppo.py cnn-simple --help`. No branch switch, training command, or large output generation was performed.
+
+### Repository Safety Checks
+
+Command:
+
+```powershell
+git branch --show-current
+```
+
+Result:
+
+```text
+exp/smoke-test
+```
+
+Command:
+
+```powershell
+git status
+```
+
+Result:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   docs/experiment_log.md
+        modified:   docs/smoke_test_plan.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Command:
+
+```powershell
+pwd
+```
+
+Result:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+### Python and pip Checks
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" --version
+```
+
+Result:
+
+```text
+Failed: Unable to create process using '"C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe" --version'
+```
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip --version
+```
+
+Result:
+
+```text
+Failed: Unable to create process using '"C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe" -m pip --version'
+```
+
+### Decision
+
+Python absolute path used: `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe`.
+
+Python version: unavailable because the virtual environment executable cannot start.
+
+pip version: unavailable because the virtual environment executable cannot start.
+
+The absolute-path PowerShell invocation was used correctly with `&`, but the virtual environment is not runnable because it depends on a missing base interpreter path.
+
+### Install and Validation Result
+
+Atari requirements installed: no. Installation was not attempted because the selected virtual environment Python executable cannot start.
+
+`scripts/check_env.py`: not run because the selected virtual environment Python executable cannot start.
+
+`experiments/atari/run_ppo.py cnn-simple --help`: not run because the selected virtual environment Python executable cannot start.
+
+No training command was run.
+
+### Current Blocker
+
+The blocker is a broken virtual environment, not PowerShell quoting. The selected `.venv\Scripts\python.exe` exists, but it cannot create a process using:
+
+```text
+C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe
+```
+
+### Next Minimal Operation
+
+Repair or recreate `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv` with an available Python 3.10 base interpreter. Then verify:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" --version
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip --version
+```
+
+Only after those succeed, rerun:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip install --upgrade pip
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip install -r experiments/atari/requirements.txt
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" scripts/check_env.py
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --help
+```
+
+### Suggested Commit Message
+
+```text
+docs: record absolute virtualenv python blocker
+```
+
+## 2026-06-07 Absolute Virtualenv Python Recheck
+
+Goal: retry the absolute Python path `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe` with PowerShell's call operator `&` before installing Atari smoke-test dependencies or running `run_ppo.py cnn-simple --help`. No branch switch, training command, or large output generation was performed.
+
+### Repository Safety Checks
+
+Command:
+
+```powershell
+git branch --show-current
+```
+
+Result:
+
+```text
+exp/smoke-test
+```
+
+Command:
+
+```powershell
+git status
+```
+
+Result:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   docs/experiment_log.md
+        modified:   docs/smoke_test_plan.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Command:
+
+```powershell
+pwd
+```
+
+Result:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+### Python and pip Checks
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" --version
+```
+
+Result:
+
+```text
+Failed: Unable to create process using '"C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe" --version'
+```
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip --version
+```
+
+Result:
+
+```text
+Failed: Unable to create process using '"C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe" -m pip --version'
+```
+
+### Decision
+
+Python absolute path used: `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe`.
+
+Python version: unavailable because the virtual environment executable cannot start.
+
+pip version: unavailable because the virtual environment executable cannot start.
+
+### Install and Validation Result
+
+Atari requirements installed: no. Installation was not attempted because the selected virtual environment Python executable cannot start.
+
+`scripts/check_env.py`: not run because the selected virtual environment Python executable cannot start.
+
+`experiments/atari/run_ppo.py cnn-simple --help`: not run because the selected virtual environment Python executable cannot start.
+
+No training command was run.
+
+### Current Blocker
+
+The blocker remains the broken `.venv` launcher. The absolute path invocation and quoting are correct, but the virtual environment still depends on a missing base interpreter:
+
+```text
+C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe
+```
+
+### Next Minimal Operation
+
+Repair or recreate `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv` with an available Python 3.10 base interpreter. Then verify:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" --version
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip --version
+```
+
+Only after those succeed, rerun the Atari dependency installation, `scripts/check_env.py`, and `run_ppo.py cnn-simple --help`.
+
+### Suggested Commit Message
+
+```text
+docs: record absolute virtualenv python recheck
+```
+
+## 2026-06-07 Manual PyCharm Terminal Environment Confirmation
+
+Goal: record the manually completed Atari smoke-test environment work from PyCharm Terminal. Codex did not run any commands, did not install dependencies, and did not run training for this update.
+
+### Key Clarification
+
+Codex's command execution shell does not inherit the PyCharm Terminal virtual environment activation. Therefore Codex could not directly use `python` from the activated `.venv` in its own shell.
+
+This does not mean the project `.venv` is broken.
+
+### Manual PyCharm Terminal Result
+
+The user manually confirmed the project virtual environment in PyCharm Terminal:
+
+```text
+VIRTUAL_ENV = D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv
+Python = 3.10.11
+pip comes from the project .venv
+base executable exists
+```
+
+Atari dependency installation and `run_ppo.py cnn-simple --help` should be interpreted according to the manual PyCharm Terminal results, not the earlier Codex shell failures.
+
+### Updated Interpretation
+
+Earlier Codex failures show an execution-environment mismatch: Codex did not have access to the same activated Python environment as PyCharm Terminal. They should not be used to conclude that `.venv` is damaged.
+
+### Future Rule
+
+If Codex needs to execute Python later, first confirm whether Codex's command execution environment can access the intended Python executable. If it cannot, Codex should provide the exact commands for the user to run manually instead of attempting to run Python itself.
+
+### Suggested Commit Message
+
+```text
+docs: record manual pycharm terminal atari env result
+```
+
+## 2026-06-07 Atari Requirements and Help Check
+
+Goal: use the project Python 3.10 virtual environment to install Atari smoke-test dependencies, run the environment check, and run only `run_ppo.py cnn-simple --help`. No branch switch, training command, source-code edit, generated experiment artifact, commit, or push was performed.
+
+### Repository Safety Checks
+
+Current branch:
+
+```text
+exp/smoke-test
+```
+
+Current directory:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+Initial `git status`:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+Changes not staged for commit:
+  modified:   docs/experiment_log.md
+  modified:   docs/smoke_test_plan.md
+
+no changes added to commit
+```
+
+### Python and pip
+
+Python path used:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+```
+
+Python version:
+
+```text
+Python 3.10.11
+```
+
+pip version:
+
+```text
+pip 26.1.2 from D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\lib\site-packages\pip (python 3.10)
+```
+
+### pip Upgrade
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip install --upgrade pip
+```
+
+Result:
+
+```text
+Success. pip was already satisfied at version 26.1.2 in the project .venv.
+```
+
+### Atari Requirements
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip install -r experiments/atari/requirements.txt
+```
+
+Result:
+
+```text
+Success. The command exited with code 0. The output reported the Atari packages as already satisfied in the project .venv, including torch==2.1.0, torchvision==0.16.0, gym==0.23.1, gymnasium==0.28.1, ale-py==0.8.1, autorom==0.4.2, stable-baselines3==2.0.0, tyro==0.5.10, tensorboard==2.11.2, and opencv-python==4.7.0.72.
+```
+
+Atari requirements installed successfully: yes.
+
+### Environment Check
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" scripts/check_env.py
+```
+
+Result:
+
+```text
+Success. The command exited with code 0.
+```
+
+Important output:
+
+```text
+Python executable: D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+Python version: 3.10.11
+pip: 26.1.2 from the project .venv
+OS: Windows-10-10.0.26200-SP0
+nvidia-smi: available
+GPU: NVIDIA GeForce RTX 3050 Laptop GPU, 4096 MiB
+PyTorch installed: True
+PyTorch version: 2.1.0+cpu
+torch cuda available: False
+```
+
+Warning observed during the environment check:
+
+```text
+A module that was compiled using NumPy 1.x cannot be run in NumPy 2.2.6 as it may crash.
+UserWarning: Failed to initialize NumPy: _ARRAY_API not found
+```
+
+`scripts/check_env.py` succeeded: yes, with the NumPy compatibility warning above.
+
+### Atari Help Check
+
+Command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --help
+```
+
+Result:
+
+```text
+Success. The command exited with code 0 and printed the tyro CLI help for run_ppo.py.
+```
+
+The help output included the required model choices and PPO options:
+
+```text
+--model-type {cnn-simple,cnn-simple-ft,dino-simple,cnn-componet,prog-net,packnet}
+--env-id STR
+--total-timesteps INT
+--num-envs INT
+--num-steps INT
+--track | --no-track
+--capture-video | --no-capture-video
+```
+
+Warning/error text observed during the help command:
+
+```text
+A module that was compiled using NumPy 1.x cannot be run in NumPy 2.2.6 as it may crash.
+AttributeError: _ARRAY_API not found
+```
+
+The repeated `_ARRAY_API not found` messages came from imports involving `cv2`, `gymnasium`, `gym`, `shimmy`, `torch`, and `stable_baselines3`. Despite these messages, the command exited with code 0 and printed the help text.
+
+`run_ppo.py cnn-simple --help` succeeded: yes, with NumPy compatibility warnings/errors printed during imports.
+
+### Current Blocker or Risk
+
+There is no longer a Python access blocker. Full Access allowed Codex to execute the project `.venv` Python.
+
+The new risk for a real smoke run is NumPy binary compatibility: the current environment has NumPy 2.2.6, while packages such as `opencv-python==4.7.0.72`, PyTorch 2.1.0, and related Atari imports emit `_ARRAY_API not found` warnings/errors that indicate some compiled modules expect NumPy 1.x.
+
+No extra packages were installed beyond `experiments/atari/requirements.txt`.
+
+### Next Minimal Operation
+
+Before running any real Atari smoke training command, decide whether to fix the NumPy compatibility risk. The likely minimal environment fix to consider is pinning or installing a NumPy 1.x version compatible with these packages, for example `numpy<2`, but this was not installed in this step because the requirements installation itself succeeded and no extra package installation was authorized.
+
+After the NumPy compatibility decision, design the shortest non-full-training Atari smoke command using:
+
+```text
+cnn-simple
+very low --total-timesteps
+low --num-envs
+low --num-steps
+--no-track
+--no-capture-video
+no --save-dir unless explicitly needed
+```
+
+Do not run the real smoke command until explicitly requested.
+
+### Suggested Commit Message
+
+```text
+docs: record atari requirements and help check
+```

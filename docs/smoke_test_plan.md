@@ -6,7 +6,7 @@ Branch: `exp/smoke-test`
 
 ## Current Status
 
-The first official-code smoke test is blocked by the lack of a usable Python command in the current shell.
+The first official-code smoke test is ready for the shortest smoke-run design stage, with one environment risk to address first: NumPy 2.2.6 causes `_ARRAY_API not found` compatibility messages from compiled packages such as `opencv-python==4.7.0.72` and PyTorch 2.1.0 imports.
 
 Confirmed working:
 
@@ -20,12 +20,40 @@ Confirmed failing:
 
 - `python --version` fails because `python` is not found.
 - `pip --version` fails because `pip` is not found.
+- `py -0p` reports `No installed Pythons found!`.
+- `py -3.10 --version` reports `No installed Python found!`.
 - `python scripts/check_env.py` fails before the script can start because `python` is not found.
 - `python experiments/atari/run_ppo.py cnn-simple --help` fails for the same reason.
 - `py --version` reports `No installed Python found!`.
 - `pip`, `python -m pip`, and `conda` are unavailable.
 - `where.exe python` finds no Python executable.
 - `where.exe py` finds only `C:\Windows\py.exe`.
+- Latest repository check was run from branch `exp/smoke-test` in `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test`.
+- `venv` does not exist in the worktree.
+- `.venv` does not exist in the worktree.
+- `.\venv\Scripts\python.exe` does not exist.
+- `.\.venv\Scripts\python.exe` does not exist.
+- `..\..\.venv\Scripts\python.exe` exists in the main project directory.
+- `..\..\.venv\Scripts\python.exe --version` fails with `Unable to create process using '"C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe" --version'`.
+- `..\..\.venv\Scripts\python.exe -m pip --version` fails with the same missing base interpreter path.
+- Latest activated-environment check printed no `$env:VIRTUAL_ENV` value.
+- `Get-Command python` failed in the latest command execution environment.
+- `python --version` and `python -m pip --version` failed in the latest command execution environment.
+- Absolute path invocation with `& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" --version` fails with `Unable to create process using '"C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe" --version'`.
+- Absolute path invocation with `& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" -m pip --version` fails with the same missing base interpreter path.
+- Manual PyCharm Terminal confirmation shows the project `.venv` is usable there.
+- Manual `VIRTUAL_ENV` is `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv`.
+- Manual Python version is `3.10.11`.
+- Manual pip comes from the project `.venv`.
+- Manual base executable check succeeded.
+- Full Access allowed Codex to execute `D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe`.
+- Codex confirmed Python `3.10.11`.
+- Codex confirmed pip `26.1.2` from the project `.venv`.
+- `python -m pip install --upgrade pip` succeeded in the project `.venv`; pip was already satisfied.
+- `python -m pip install -r experiments/atari/requirements.txt` succeeded; Atari packages were already satisfied.
+- `scripts/check_env.py` succeeded with exit code 0.
+- `experiments/atari/run_ppo.py cnn-simple --help` succeeded with exit code 0 and printed tyro CLI help.
+- NumPy compatibility warnings/errors appeared during `check_env.py` and `--help`: NumPy 2.2.6 is incompatible with some modules compiled against NumPy 1.x, with `_ARRAY_API not found`.
 
 ## First Smoke Test Choice
 
@@ -46,15 +74,25 @@ python experiments/atari/run_ppo.py cnn-simple --help
 
 Latest result: the help command was attempted and failed before Python started the script because `python` is not available in the shell. The missing dependency at this stage is Python itself, not yet `torch`, `tyro`, `gymnasium`, or `ale-py`.
 
+Latest result: Full Access allowed Codex to use the project `.venv` directly. Atari requirements are installed in the project `.venv`, `scripts/check_env.py` exits successfully, and `run_ppo.py cnn-simple --help` exits successfully while printing the expected tyro CLI options. The remaining risk before a true smoke run is the NumPy 2.2.6 compatibility warning/error stream (`_ARRAY_API not found`) from compiled dependencies.
+
 Do not run full training yet.
 
 ## Minimal Setup Command
 
-Install or expose Python 3.10 first. After `python` is available, install only the Atari dependency set:
+Before running a true smoke command, decide whether to fix the NumPy compatibility issue. The likely minimal environment-only fix to consider is using NumPy 1.x, for example `numpy<2`, because the current packages emit `_ARRAY_API not found` under NumPy 2.2.6. Do not install this unless explicitly requested.
+
+Candidate shortest smoke-run command to review next, but not execute yet:
 
 ```powershell
-python -m pip install --upgrade pip
-python -m pip install -r experiments/atari/requirements.txt
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --total-timesteps 32 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video
+```
+
+If NumPy is fixed first, rerun validation before the true smoke command:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" scripts/check_env.py
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --help
 ```
 
 If Atari ROM setup is missing after dependency installation, run:
@@ -67,12 +105,9 @@ Do not install Meta-World dependencies for the first smoke test.
 
 ## Next Validation Commands
 
-After Python and Atari dependencies are available, rerun:
+After Atari dependencies and help output are confirmed manually, the next Codex step should be documentation and planning for a tiny smoke run, not training.
 
-```powershell
-python scripts/check_env.py
-python experiments/atari/run_ppo.py cnn-simple --help
-```
+Do not run the Atari entrypoint without `--help` until the help command succeeds.
 
 Expected success criteria:
 
@@ -97,5 +132,5 @@ The first run must stay under 5 minutes and must not generate large checkpoints,
 Suggested commit message:
 
 ```text
-docs: record atari help smoke test blocker
+docs: record atari requirements and help check
 ```
