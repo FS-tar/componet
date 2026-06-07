@@ -15,3 +15,7 @@ runs/
 .codex-temp/
 .idea/
 componet-worktrees/
+
+.tools/
+.venv-codex/
+.venv310/
