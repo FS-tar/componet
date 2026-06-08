@@ -139,15 +139,36 @@ docs: record atari requirements and help check
 
 ## Proposed Minimal Atari Smoke Test
 
-Recommended command:
+Recommended command from the first design pass:
 
 ```powershell
 & "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
 ```
 
+Latest result:
+
+This exact command was executed once and failed during tyro CLI parsing before environment creation. It did not start the Atari environment or enter the training loop. The error says `--model-type` is required, so `cnn-simple` must be passed as a named option rather than a positional argument. No `runs/`, `videos/`, or `wandb/` directory was present after the failed command.
+
+2026-06-08 CLI diagnostic update:
+
+The requested fresh `run_ppo.py --help` command could not be completed in Codex's current shell because the project `.venv` Python could not create a process through its base executable path, and two sandbox-outside retries timed out during permission review. No training was run. The model-type conclusion remains clear from the earlier successful `--help` output and the parse failure:
+
+```text
+--model-type {cnn-simple,cnn-simple-ft,dino-simple,cnn-componet,prog-net,packnet}
+    The name of the model to use as agent. (required)
+```
+
+The previous smoke command failed because it used positional `cnn-simple`; tyro requires named `--model-type cnn-simple`.
+
+Corrected command to approve next, but not execute yet:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
+```
+
 Parameter roles:
 
-- `cnn-simple`: uses the simplest Atari CNN PPO baseline, with no previous CompoNet units or saved model dependencies.
+- `--model-type cnn-simple`: uses the simplest Atari CNN PPO baseline, with no previous CompoNet units or saved model dependencies.
 - `--env-id ALE/Freeway-v5`: uses one of the official Atari sequence environments referenced in the repository notes.
 - `--mode 0`: selects a single Atari mode/task.
 - `--total-timesteps 8`: keeps the run far below the paper-scale default of `1,000,000` timesteps.
@@ -194,6 +215,7 @@ Maximum allowed runtime:
 
 If it fails, next debugging step:
 
+- If the error says `--model-type` is required, use the corrected named-option command above.
 - If the error mentions missing ROMs, run Atari ROM setup separately only after approval, then repeat `--help` before retrying the smoke run.
 - If the error mentions environment id or mode, try the same minimal settings with the script default environment or another documented Atari environment after checking the available Gymnasium/ALE ids.
 - If the error is a tensor shape or PPO minibatch issue, inspect the failure and adjust only smoke-test CLI dimensions first, not algorithm code.

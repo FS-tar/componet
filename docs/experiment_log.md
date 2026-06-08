@@ -2191,3 +2191,204 @@ If approved later, run the proposed command with a 5-minute timeout and then rec
 ```text
 docs: propose minimal atari smoke test command
 ```
+
+## 2026-06-07 Minimal Atari Smoke Test Run
+
+Goal: run the single approved minimal Atari smoke-test command and record the result. No branch switch, source-code edit, dependency install, commit, push, deletion, extra training command, wandb tracking, video capture, or CUDA use was performed.
+
+### Executed Command
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
+```
+
+### Context
+
+Current branch:
+
+```text
+exp/smoke-test
+```
+
+Current directory:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+Python path:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+```
+
+NumPy version:
+
+```text
+1.26.4
+```
+
+### Result
+
+Smoke test started successfully: no.
+
+Atari environment created successfully: no. The command failed during CLI argument parsing before environment creation.
+
+Training loop executed at least once: no.
+
+Normal exit: no.
+
+Exit code:
+
+```text
+1
+```
+
+Approximate runtime:
+
+```text
+14.8 seconds
+```
+
+Generated output files or directories:
+
+```text
+No runs/, videos/, or wandb/ directory was present after the failed command. git status remained clean before documentation edits.
+```
+
+### Full Error
+
+```text
++- Required arguments --------------------------------------------------------+
+| The following arguments are required: --model-type                          |
+| Argument helptext:                                                          |
+|     --model-type                                                            |
+|     {cnn-simple,cnn-simple-ft,dino-simple,cnn-componet,prog-net,packnet}    |
+|         The name of the model to use as agent. (required)                   |
+| For full helptext, run run_ppo.py --help                                    |
++-----------------------------------------------------------------------------+
+```
+
+### Analysis
+
+The proposed command used `cnn-simple` as a positional argument. The `--help` output and this failure show that tyro requires the model choice to be passed as the named option `--model-type cnn-simple`.
+
+No second training command was run, because this step allowed only the exact approved command.
+
+### Next Step
+
+Design a corrected minimal smoke-test command that replaces the positional `cnn-simple` with `--model-type cnn-simple`, then request explicit approval before running it. Keep the same minimal runtime controls:
+
+```text
+--env-id ALE/Freeway-v5
+--mode 0
+--total-timesteps 8
+--num-envs 1
+--num-steps 8
+--num-minibatches 1
+--update-epochs 1
+--no-track
+--no-capture-video
+--no-cuda
+--exp-name smoke_min
+```
+
+### Suggested Commit Message
+
+```text
+docs: record minimal atari smoke test parse failure
+```
+
+## 2026-06-08 Atari CLI Model-Type Diagnostic
+
+Goal: diagnose the previous `The following arguments are required: --model-type` error without running training, installing dependencies, changing source code, committing, or pushing.
+
+### Safety Check
+
+Current branch:
+
+```text
+exp/smoke-test
+```
+
+Current directory:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+Initial `git status`:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+Changes not staged for commit:
+        modified:   docs/experiment_log.md
+        modified:   docs/smoke_test_plan.md
+
+no changes added to commit
+```
+
+### Requested Help Command
+
+Command attempted:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py --help
+```
+
+Result:
+
+```text
+Failed before running run_ppo.py:
+Unable to create process using '"C:\Users\86157\AppData\Local\Programs\Python\Python310\python.exe" experiments/atari/run_ppo.py --help'
+```
+
+Two sandbox-outside retries were requested for the same `--help` command, but automatic permission review timed out both times. No training command was run.
+
+### Model-Type Diagnosis
+
+The previous successful `--help` output and the previous failed smoke command both show that `run_ppo.py` requires a named `--model-type` option.
+
+Relevant `--help` text from the earlier successful help run:
+
+```text
+--model-type {cnn-simple,cnn-simple-ft,dino-simple,cnn-componet,prog-net,packnet}
+    The name of the model to use as agent. (required)
+```
+
+Accepted `--model-type` values:
+
+```text
+cnn-simple
+cnn-simple-ft
+dino-simple
+cnn-componet
+prog-net
+packnet
+```
+
+The command actually executed in the previous smoke attempt was:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
+```
+
+It failed because `cnn-simple` was passed as a positional argument, while tyro expects:
+
+```powershell
+--model-type cnn-simple
+```
+
+Corrected command for a future explicitly approved smoke run:
+
+```powershell
+& "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
+```
+
+### Suggested Commit Message
+
+```text
+docs: record atari model-type cli diagnostic
+```
