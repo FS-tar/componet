@@ -2392,3 +2392,154 @@ Corrected command for a future explicitly approved smoke run:
 ```text
 docs: record atari model-type cli diagnostic
 ```
+
+## 2026-06-07 Minimal Atari Smoke Test Run After Full Access
+
+Goal: run the corrected shortest Atari smoke test with PowerShell argument-array invocation. No branch switch, source-code edit, dependency install, commit, push, deletion, wandb tracking, video capture, CUDA use, or extra training command was performed.
+
+### Safety Check
+
+Current branch:
+
+```text
+exp/smoke-test
+```
+
+Current directory:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+Initial `git status`:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+nothing to commit, working tree clean
+```
+
+### Python Check
+
+PY path:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+```
+
+`Test-Path $PY`:
+
+```text
+True
+```
+
+Python version:
+
+```text
+Python 3.10.11
+```
+
+pip version:
+
+```text
+pip 26.1.2 from D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\lib\site-packages\pip (python 3.10)
+```
+
+NumPy version:
+
+```text
+1.26.4
+```
+
+### Executed Command
+
+The command was built with a PowerShell argument array.
+
+Printed PY:
+
+```text
+PY=D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+```
+
+Printed ARGS:
+
+```text
+ARGS=experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
+```
+
+### Result
+
+CLI argument parsing passed: yes.
+
+Smoke test started successfully: yes.
+
+Atari environment created successfully: yes.
+
+Training loop entered: yes. The run printed `SPS: 9`, which indicates the short rollout/update path executed.
+
+Normal exit: yes.
+
+Exit code:
+
+```text
+0
+```
+
+Runtime:
+
+```text
+21.183 seconds
+```
+
+Console output:
+
+```text
+PY=D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+ARGS=experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
+*** Run's name: ALE-Freeway-v5_0__cnn-simple__smoke_min__1
+*** Model: cnn-simple ***
+SPS: 9
+EXIT_CODE=0
+ELAPSED_SECONDS=21.183
+A.L.E: Arcade Learning Environment (version 0.8.1+53f58b7)
+[Powered by Stella]
+```
+
+Full error information:
+
+```text
+No error was reported. The command exited with code 0.
+```
+
+### Output Files or Directories
+
+After the run, `git status` remained clean, which means no tracked or untracked Git-visible files were reported.
+
+The following output-directory check was performed:
+
+```text
+runs=True
+videos=False
+wandb=False
+results=False
+checkpoints=False
+```
+
+The `runs` directory contains:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__smoke_min__1
+```
+
+No cleanup was performed.
+
+### Next Step
+
+This minimal Atari smoke test passed. The next safe step is to keep this result as the baseline reproduction smoke test, then optionally design one slightly broader smoke test only after documenting whether TensorBoard output should remain ignored or be cleaned in a separate explicit step.
+
+### Suggested Commit Message
+
+```text
+docs: record successful minimal atari smoke test
+```

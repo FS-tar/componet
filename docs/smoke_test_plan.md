@@ -166,6 +166,24 @@ Corrected command to approve next, but not execute yet:
 & "D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe" experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
 ```
 
+2026-06-08 latest result:
+
+The corrected PowerShell argument-array smoke test was executed successfully with `--model-type cnn-simple`. It passed CLI parsing, created the `ALE/Freeway-v5` Atari environment in mode `0`, entered the short PPO training loop, printed `SPS: 9`, and exited normally with code `0` after about `21.183` seconds.
+
+Actual printed ARGS:
+
+```text
+experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 8 --num-envs 1 --num-steps 8 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name smoke_min
+```
+
+Observed output directory:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__smoke_min__1
+```
+
+No `videos/`, `wandb/`, `results/`, or `checkpoints/` directory was observed. `git status` remained clean immediately after the run, before documentation edits.
+
 Parameter roles:
 
 - `--model-type cnn-simple`: uses the simplest Atari CNN PPO baseline, with no previous CompoNet units or saved model dependencies.
