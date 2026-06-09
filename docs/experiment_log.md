@@ -2709,3 +2709,163 @@ The 256-step Atari sanity run passed. The next reasonable sanity step is a sligh
 ```text
 docs: record 256-step atari sanity run
 ```
+
+## 2026-06-07 Atari Sanity Run 1k Default PPO Shape
+
+Goal: run a 1k-step Atari sanity check using the default PPO rollout shape: `num_envs=8`, `num_steps=128`, `num_minibatches=4`, and `update_epochs=4`. This checks that the default batch shape can run once without attempting a full paper experiment.
+
+### Safety Check
+
+Current branch:
+
+```text
+exp/smoke-test
+```
+
+Current directory:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+Initial `git status`:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+nothing to commit, working tree clean
+```
+
+### Python Check
+
+PY path:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+```
+
+`Test-Path $PY`:
+
+```text
+True
+```
+
+Python version:
+
+```text
+Python 3.10.11
+```
+
+pip version:
+
+```text
+pip 26.1.2 from D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\lib\site-packages\pip (python 3.10)
+```
+
+NumPy version:
+
+```text
+1.26.4
+```
+
+### Executed Command
+
+The command was built with a PowerShell argument array.
+
+Printed PY:
+
+```text
+PY=D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+```
+
+Printed ARGS:
+
+```text
+ARGS=experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 1024 --num-envs 8 --num-steps 128 --num-minibatches 4 --update-epochs 4 --no-track --no-capture-video --no-cuda --exp-name sanity_1k_default_shape
+```
+
+### Result
+
+CLI argument parsing passed: yes.
+
+Sanity run started successfully: yes.
+
+Atari environment created successfully: yes.
+
+Training loop continued to completion: yes. With `8 * 128 = 1024` and `total_timesteps=1024`, this ran one default-shaped PPO iteration.
+
+Normal exit: yes.
+
+Exit code:
+
+```text
+0
+```
+
+Runtime:
+
+```text
+26.437 seconds
+```
+
+Console output:
+
+```text
+PY=D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+ARGS=experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 1024 --num-envs 8 --num-steps 128 --num-minibatches 4 --update-epochs 4 --no-track --no-capture-video --no-cuda --exp-name sanity_1k_default_shape
+*** Run's name: ALE-Freeway-v5_0__cnn-simple__sanity_1k_default_shape__1
+*** Model: cnn-simple ***
+SPS: 82
+EXIT_CODE=0
+ELAPSED_SECONDS=26.437
+A.L.E: Arcade Learning Environment (version 0.8.1+53f58b7)
+[Powered by Stella]
+```
+
+Reward/log/training step output observed: no reward value was printed, but the `SPS: 82` training-progress line was printed.
+
+Warning/error observed:
+
+```text
+No warning or error was reported. The command exited with code 0.
+```
+
+### Output Files or Directories
+
+After the run, `git status` remained clean, which means no tracked or untracked Git-visible files were reported.
+
+The following output-directory check was performed:
+
+```text
+runs=True
+videos=False
+wandb=False
+results=False
+checkpoints=False
+```
+
+The `runs` directory contains the new 1k sanity-run output directory:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__sanity_1k_default_shape__1
+```
+
+Previous output directories are also still present:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__sanity_256__1
+runs/ALE-Freeway-v5_0__cnn-simple__smoke_min__1
+```
+
+No cleanup was performed.
+
+### Next Step
+
+The 1k default-shape sanity run passed. A 10k sanity run is now a reasonable next step if explicitly requested, because the default rollout/batch shape has been validated once. It is still not advisable to jump directly to the full `1,000,000`-step paper setting: that is roughly `976` default-shaped PPO iterations and about `976` times larger than this 1k run, and it should wait until logging, output retention, runtime expectations, and whether to use tracking/checkpointing are decided.
+
+### Suggested Commit Message
+
+```text
+docs: record 1k atari default-shape sanity run
+```

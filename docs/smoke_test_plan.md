@@ -206,6 +206,30 @@ Command adjustment needed: no. The named `--model-type cnn-simple` argument and 
 
 Next possible sanity step: it is reasonable to move to a `1k` or `2k` step sanity run with the same safety constraints if explicitly requested. Keep `--no-track`, `--no-capture-video`, `--no-cuda`, one environment, and no checkpoint save path.
 
+2026-06-09 latest result:
+
+The 1k default-shape Atari sanity run was executed successfully. It used `total_timesteps=1024`, `num_envs=8`, `num_steps=128`, `num_minibatches=4`, and `update_epochs=4`, matching the default PPO batch shape for one iteration. The run passed CLI parsing, created the `ALE/Freeway-v5` environment in mode `0`, completed the one default-shaped PPO iteration, printed `SPS: 82`, and exited normally with code `0` after about `26.437` seconds.
+
+Actual printed ARGS:
+
+```text
+experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 1024 --num-envs 8 --num-steps 128 --num-minibatches 4 --update-epochs 4 --no-track --no-capture-video --no-cuda --exp-name sanity_1k_default_shape
+```
+
+Observed output directory:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__sanity_1k_default_shape__1
+```
+
+No `videos/`, `wandb/`, `results/`, or `checkpoints/` directory was observed. `git status` remained clean immediately after the run, before documentation edits.
+
+Command adjustment needed: no. The default-shape settings worked for the single-iteration sanity run.
+
+Next possible sanity step: a `10k` sanity run is now reasonable if explicitly requested. The run should keep `--no-track`, `--no-capture-video`, `--no-cuda`, and no checkpoint save path.
+
+Do not jump directly to the full `1,000,000`-step paper experiment yet. The full default setting is about `976` default-shaped PPO iterations, compared with one iteration in this 1k sanity run, so it is roughly `976` times larger. Before that, decide runtime expectations, output retention, whether checkpoints are needed, and whether paper-faithful tracking should be enabled in a separate controlled step.
+
 Parameter roles:
 
 - `--model-type cnn-simple`: uses the simplest Atari CNN PPO baseline, with no previous CompoNet units or saved model dependencies.
