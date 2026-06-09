@@ -2543,3 +2543,169 @@ This minimal Atari smoke test passed. The next safe step is to keep this result 
 ```text
 docs: record successful minimal atari smoke test
 ```
+
+## 2026-06-07 Short Atari Sanity Run 256 Steps
+
+Goal: run a slightly longer but still very small Atari sanity check to verify that the training loop can continue for several tiny PPO iterations. No branch switch, source-code edit, dependency install, commit, push, deletion, wandb tracking, video capture, CUDA use, or extra training command was performed.
+
+### Safety Check
+
+Current branch:
+
+```text
+exp/smoke-test
+```
+
+Current directory:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\componet-worktrees\smoke-test
+```
+
+Initial `git status`:
+
+```text
+On branch exp/smoke-test
+Your branch is up to date with 'origin/exp/smoke-test'.
+
+nothing to commit, working tree clean
+```
+
+### Python Check
+
+PY path:
+
+```text
+D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+```
+
+`Test-Path $PY`:
+
+```text
+True
+```
+
+Python version:
+
+```text
+Python 3.10.11
+```
+
+pip version:
+
+```text
+pip 26.1.2 from D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\lib\site-packages\pip (python 3.10)
+```
+
+NumPy version:
+
+```text
+1.26.4
+```
+
+### Executed Command
+
+The command was built with a PowerShell argument array.
+
+Printed PY:
+
+```text
+PY=D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+```
+
+Printed ARGS:
+
+```text
+ARGS=experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 256 --num-envs 1 --num-steps 32 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name sanity_256
+```
+
+### Result
+
+CLI argument parsing passed: yes.
+
+Sanity run started successfully: yes.
+
+Atari environment created successfully: yes.
+
+Training loop continued to completion: yes. The run printed eight `SPS:` lines, matching `256 / 32 = 8` tiny PPO iterations.
+
+Normal exit: yes.
+
+Exit code:
+
+```text
+0
+```
+
+Runtime:
+
+```text
+26.646 seconds
+```
+
+Console output:
+
+```text
+PY=D:\fishstar\software\PyCharm 2024.3.5\projects\componet\.venv\Scripts\python.exe
+ARGS=experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 256 --num-envs 1 --num-steps 32 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name sanity_256
+*** Run's name: ALE-Freeway-v5_0__cnn-simple__sanity_256__1
+*** Model: cnn-simple ***
+SPS: 22
+SPS: 31
+SPS: 34
+SPS: 36
+SPS: 37
+SPS: 36
+SPS: 37
+SPS: 38
+EXIT_CODE=0
+ELAPSED_SECONDS=26.646
+A.L.E: Arcade Learning Environment (version 0.8.1+53f58b7)
+[Powered by Stella]
+```
+
+Reward/log/training step output observed: no reward value was printed, but repeated `SPS:` progress lines were printed during the run.
+
+Full error information:
+
+```text
+No error was reported. The command exited with code 0.
+```
+
+### Output Files or Directories
+
+After the run, `git status` remained clean, which means no tracked or untracked Git-visible files were reported.
+
+The following output-directory check was performed:
+
+```text
+runs=True
+videos=False
+wandb=False
+results=False
+checkpoints=False
+```
+
+The `runs` directory contains the new sanity-run output directory:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__sanity_256__1
+```
+
+The previous minimal smoke-test output directory is also still present:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__smoke_min__1
+```
+
+No cleanup was performed.
+
+### Next Step
+
+The 256-step Atari sanity run passed. The next reasonable sanity step is a slightly longer `1k` or `2k` step run with the same safety flags, still using `--no-track`, `--no-capture-video`, `--no-cuda`, one environment, and no checkpoint save path. This should be requested explicitly before running.
+
+### Suggested Commit Message
+
+```text
+docs: record 256-step atari sanity run
+```

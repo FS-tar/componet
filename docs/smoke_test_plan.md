@@ -184,6 +184,28 @@ runs/ALE-Freeway-v5_0__cnn-simple__smoke_min__1
 
 No `videos/`, `wandb/`, `results/`, or `checkpoints/` directory was observed. `git status` remained clean immediately after the run, before documentation edits.
 
+2026-06-09 latest result:
+
+The 256-step Atari sanity run was executed successfully with the corrected PowerShell argument array and `--model-type cnn-simple`. It passed CLI parsing, created the `ALE/Freeway-v5` environment in mode `0`, ran through all eight tiny PPO iterations (`256 / 32 = 8`), printed repeated `SPS:` progress lines, and exited normally with code `0` after about `26.646` seconds.
+
+Actual printed ARGS:
+
+```text
+experiments/atari/run_ppo.py --model-type cnn-simple --env-id ALE/Freeway-v5 --mode 0 --total-timesteps 256 --num-envs 1 --num-steps 32 --num-minibatches 1 --update-epochs 1 --no-track --no-capture-video --no-cuda --exp-name sanity_256
+```
+
+Observed output directory:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__sanity_256__1
+```
+
+No `videos/`, `wandb/`, `results/`, or `checkpoints/` directory was observed. `git status` remained clean immediately after the run, before documentation edits.
+
+Command adjustment needed: no. The named `--model-type cnn-simple` argument and current short-run settings worked.
+
+Next possible sanity step: it is reasonable to move to a `1k` or `2k` step sanity run with the same safety constraints if explicitly requested. Keep `--no-track`, `--no-capture-video`, `--no-cuda`, one environment, and no checkpoint save path.
+
 Parameter roles:
 
 - `--model-type cnn-simple`: uses the simplest Atari CNN PPO baseline, with no previous CompoNet units or saved model dependencies.
