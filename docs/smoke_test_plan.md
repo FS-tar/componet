@@ -230,6 +230,31 @@ Next possible sanity step: a `10k` sanity run is now reasonable if explicitly re
 
 Do not jump directly to the full `1,000,000`-step paper experiment yet. The full default setting is about `976` default-shaped PPO iterations, compared with one iteration in this 1k sanity run, so it is roughly `976` times larger. Before that, decide runtime expectations, output retention, whether checkpoints are needed, and whether paper-faithful tracking should be enabled in a separate controlled step.
 
+2026-06-09 latest representative result:
+
+Three 100k-step representative Atari runs have completed successfully. These are scaled-down representative runs, not full `1,000,000`-step paper experiments. They use the paper default PPO rollout shape (`num_envs=8`, `num_steps=128`, `num_minibatches=4`, `update_epochs=4`) while reducing `total_timesteps` to `102400`.
+
+Completed representative runs:
+
+- Freeway mode 0, `cnn-simple`, 100k: success. Output directory: `runs/ALE-Freeway-v5_0__cnn-simple__sanity_100k_default_shape__1`. Runtime was about 21.5 minutes, SPS about 80, and episodic return rose from around 0 early to about 18-23 late.
+- Freeway mode 0, `cnn-componet`, 100k: success. Output directory: `runs/ALE-Freeway-v5_0__cnn-componet__rep_100k_freeway_cnn_componet__1`. Runtime was about 18.5 minutes, late-run SPS was about 93-94, and episodic return rose from around 0/1 early to about 18-24 late. This confirms first-task `cnn-componet` can train stably after the wrapper-call fix.
+- SpaceInvaders mode 0, `cnn-simple`, 100k: success. Output directory: `runs/ALE-SpaceInvaders-v5_0__cnn-simple__rep_100k_spaceinvaders_cnn_simple__1`. Runtime was about 17.0 minutes, late-run SPS was about 101, and episodic return rose from tens early to repeated 200-400+ returns late.
+
+Current validated scope:
+
+- Atari baseline training runs.
+- The SpaceInvaders environment runs.
+- Freeway first-task `cnn-componet` training runs.
+- The paper default PPO rollout shape works when `total_timesteps` is reduced to 100k.
+
+Still not validated:
+
+- Full continual sequences across multiple modes.
+- Full `1,000,000`-step paper experiments.
+- Multiple seeds.
+- Later-task CompoNet runs with previous units.
+- Meta-World experiments.
+
 Parameter roles:
 
 - `--model-type cnn-simple`: uses the simplest Atari CNN PPO baseline, with no previous CompoNet units or saved model dependencies.

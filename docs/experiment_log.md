@@ -2869,3 +2869,120 @@ The 1k default-shape sanity run passed. A 10k sanity run is now a reasonable nex
 ```text
 docs: record 1k atari default-shape sanity run
 ```
+
+## 2026-06-09 Representative Atari 100k Runs Summary
+
+Goal: record the completed 100k-step representative Atari runs. These are scaled-down representative runs, not full `1,000,000`-step paper experiments. They use the paper default PPO rollout shape (`num_envs=8`, `num_steps=128`, `num_minibatches=4`, `update_epochs=4`) while reducing `total_timesteps` to `102400`.
+
+### Freeway Mode 0, cnn-simple, 100k
+
+Result: success.
+
+Output directory:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-simple__sanity_100k_default_shape__1
+```
+
+Runtime:
+
+```text
+about 21.5 minutes
+```
+
+Throughput:
+
+```text
+about 80 SPS
+```
+
+Learning signal:
+
+```text
+episodic_return started around 0 and reached about 18-23 near the end of the run.
+```
+
+### Freeway Mode 0, cnn-componet, 100k
+
+Result: success.
+
+Output directory:
+
+```text
+runs/ALE-Freeway-v5_0__cnn-componet__rep_100k_freeway_cnn_componet__1
+```
+
+Runtime:
+
+```text
+about 18.5 minutes
+```
+
+Throughput:
+
+```text
+late-run SPS was about 93-94
+```
+
+Learning signal:
+
+```text
+episodic_return started around 0/1 and reached about 18-24 near the end of the run.
+```
+
+Interpretation:
+
+```text
+The first-task cnn-componet path can train stably after the FirstModuleWrapper prevs_to_noise fix.
+```
+
+### SpaceInvaders Mode 0, cnn-simple, 100k
+
+Result: success.
+
+Output directory:
+
+```text
+runs/ALE-SpaceInvaders-v5_0__cnn-simple__rep_100k_spaceinvaders_cnn_simple__1
+```
+
+Runtime:
+
+```text
+about 17.0 minutes
+```
+
+Throughput:
+
+```text
+late-run SPS was about 101
+```
+
+Learning signal:
+
+```text
+episodic_return started in the tens and reached repeated 200-400+ returns near the end of the run.
+```
+
+### Current Validation Boundary
+
+Validated so far:
+
+- Atari baseline training can run.
+- The SpaceInvaders environment can run.
+- Freeway first-task `cnn-componet` training can run after the wrapper-call fix.
+- The default PPO rollout shape works in these scaled-down 100k runs.
+
+Not validated yet:
+
+- Full continual Atari sequences across multiple modes.
+- `1,000,000`-step paper-scale runs.
+- Multi-seed evaluation.
+- Later-task CompoNet runs with previous units.
+- Meta-World experiments.
+
+### Suggested Commit Message
+
+```text
+docs: record representative atari 100k results
+```
