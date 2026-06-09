@@ -65,7 +65,9 @@ class CnnCompoNetAgent(nn.Module):
     def get_action_and_value(
         self, x, action=None, log_writter=None, global_step=None, prevs_to_noise=0
     ):
-        if not self.is_compo or global_step is None or log_writter is None:
+        if not self.is_compo:
+            p, _phi, hidden = self.actor(x, ret_encoder_out=True)
+        elif global_step is None or log_writter is None:
             p, _phi, hidden = self.actor(
                 x, ret_encoder_out=True, prevs_to_noise=prevs_to_noise
             )
